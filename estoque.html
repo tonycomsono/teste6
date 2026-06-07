@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FoodLoop - Controle de Estoque</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <div class="logo">Food<span>Loop</span></div>
+    <nav>
+      <a href="index.html">← Início</a>
+      <a href="cadastro-alimento.html">➕ Adicionar Alimento</a>
+      <span id="user-area"></span>
+    </nav>
+  </header>
+
+  <div class="estoque-hero">
+    <h1>📊 Controle de Estoque Inteligente</h1>
+    <p>Calcule automaticamente o estoque mínimo, máximo e de segurança dos seus produtos. Gerencie e vincule itens à plataforma de doação.</p>
+  </div>
+
+  <main>
+    <div class="estoque-container">
+
+      <!-- Resumo -->
+      <div class="resumo-grid" id="resumo-grid">
+        <div class="resumo-card total">
+          <span class="resumo-num" id="res-total">0</span>
+          <span class="resumo-label">Total de produtos</span>
+        </div>
+        <div class="resumo-card ok">
+          <span class="resumo-num" id="res-ok">0</span>
+          <span class="resumo-label">Estoque OK</span>
+        </div>
+        <div class="resumo-card atencao">
+          <span class="resumo-num" id="res-atencao">0</span>
+          <span class="resumo-label">Atenção</span>
+        </div>
+        <div class="resumo-card critico">
+          <span class="resumo-num" id="res-critico">0</span>
+          <span class="resumo-label">Crítico</span>
+        </div>
+      </div>
+
+      <!-- Abas -->
+      <div class="abas-estoque">
+        <button class="aba-btn ativo" data-aba="calculadora">🧮 Calculadora</button>
+        <button class="aba-btn" data-aba="gerenciar">📋 Gerenciar Produtos</button>
+        <button class="aba-btn" data-aba="alertas">⚠️ Alertas</button>
+      </div>
+
+      <!-- ABA: CALCULADORA -->
+      <div id="calculadora" class="aba-conteudo ativo">
+        <div class="calculadora-card">
+          <h3>⚡ Calculadora Rápida de Estoque</h3>
+          <div class="grid-campos">
+            <div class="campo">
+              <label>📈 Venda Média Diária (un.)</label>
+              <input type="number" id="venda-media" placeholder="Ex: 50" step="1" value="50">
+            </div>
+            <div class="campo">
+              <label>⏱️ Tempo de Reposição (dias)</label>
+              <input type="number" id="tempo-reposicao" placeholder="Ex: 7" step="1" value="7">
+            </div>
+            <div class="campo">
+              <label>🛡️ Nível de Serviço Desejado (%)</label>
+              <input type="number" id="nivel-servico" placeholder="Ex: 95" step="1" value="95" min="50" max="99.9">
+            </div>
+            <div class="campo">
+              <label>📊 Desvio Padrão da Demanda</label>
+              <input type="number" id="desvio-padrao" placeholder="Ex: 10" step="1" value="10">
+            </div>
+          </div>
+
+          <button class="btn-estoque-adicionar" onclick="calcularEstoque()">Calcular Agora 🚀</button>
+
+          <div id="resultado-calculadora" class="resultado-estoque" style="margin-top:1.5rem;">
+            <div class="resultado-item">
+              <span class="resultado-label">📦 Estoque de Segurança</span>
+              <span class="resultado-valor" id="estoque-seguranca">—</span>
+            </div>
+            <div class="resultado-item">
+              <span class="resultado-label">📉 Ponto de Pedido (Mínimo)</span>
+              <span class="resultado-valor" id="estoque-minimo">—</span>
+            </div>
+            <div class="resultado-item">
+              <span class="resultado-label">📈 Estoque Máximo</span>
+              <span class="resultado-valor" id="estoque-maximo">—</span>
+            </div>
+          </div>
+
+          <div class="dica">
+            💡 <strong>Dica:</strong> O <em>Estoque de Segurança</em> protege contra imprevistos. O <em>Ponto de Pedido</em> é quando você deve comprar mais. O <em>Estoque Máximo</em> evita excessos e perdas.
+          </div>
+        </div>
+
+        <div style="text-align:center;margin-top:1rem;">
+          <button class="btn-estoque-adicionar" onclick="usarResultadoNaGerenciar()" style="background:linear-gradient(135deg,var(--verde),var(--verde-escuro));">
+            📋 Usar esses valores para adicionar produto
+          </button>
+        </div>
+      </div>
+
+      <!-- ABA: GERENCIAR -->
+      <div id="gerenciar" class="aba-conteudo">
+        <div class="calculadora-card">
+          <h3>➕ Adicionar Produto ao Estoque</h3>
+          <div class="grid-campos">
+            <div class="campo">
+              <label>Nome do Produto</label>
+              <input type="text" id="produto-nome" placeholder="Ex: Arroz Tipo 1">
+            </div>
+            <div class="campo">
+              <label>Quantidade Atual</label>
+              <input type="number" id="produto-quantidade" placeholder="0" min="0">
+            </div>
+            <div class="campo">
+              <label>Estoque Mínimo</label>
+              <input type="number" id="produto-minimo" placeholder="0" min="0">
+            </div>
+            <div class="campo">
+              <label>Estoque Máximo</label>
+              <input type="number" id="produto-maximo" placeholder="0" min="0">
+            </div>
+            <div class="campo">
+              <label>Estoque de Segurança</label>
+              <input type="number" id="produto-seguranca" placeholder="0" min="0">
+            </div>
+          </div>
+          <button class="btn-estoque-adicionar" onclick="adicionarProduto()">➕ Adicionar Produto</button>
+        </div>
+
+        <div class="tabela-estoque">
+          <h3 style="margin-bottom:1rem;font-size:1.05rem;font-weight:800;color:var(--cinza-escuro);font-family:'Fraunces',serif;">📋 Produtos Cadastrados</h3>
+          <table id="tabela-produtos">
+            <thead>
+              <tr>
+                <th>Produto</th>
+                <th>Quantidade</th>
+                <th>Mínimo</th>
+                <th>Máximo</th>
+                <th>Segurança</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="lista-produtos">
+              <tr><td colspan="7" style="text-align:center;color:var(--cinza-medio);padding:2.5rem;">Nenhum produto cadastrado ainda</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ABA: ALERTAS -->
+      <div id="alertas" class="aba-conteudo">
+        <div class="calculadora-card">
+          <h3>⚠️ Produtos com Estoque Crítico</h3>
+          <div id="alertas-container">
+            <div class="alerta-estoque alerta-ok">✅ Todos os produtos estão dentro dos níveis ideais!</div>
+          </div>
+        </div>
+
+        <div class="calculadora-card" style="margin-top:1.5rem;">
+          <h3>📢 Vincular ao FoodLoop</h3>
+          <p style="color:var(--cinza-medio);font-size:0.9rem;margin-bottom:1.2rem;">
+            Produtos com estoque acima do mínimo podem ser publicados como doação na plataforma.
+          </p>
+          <div id="vincular-container">
+            <p style="color:var(--cinza-medio);text-align:center;padding:1rem;">Adicione produtos ao estoque para vinculá-los.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>
+    <p>FoodLoop — Reduzindo o desperdício de alimentos &copy; 2025</p>
+  </footer>
+
+  <!-- Modal editar produto -->
+  <div id="modal-editar" class="modal-overlay">
+    <div class="modal modal-editar">
+      <button class="modal-fechar" onclick="fecharModalEditar()">✕</button>
+      <h3>✏️ Editar Produto</h3>
+      <input type="hidden" id="editar-id">
+      <label>Nome</label>
+      <input type="text" id="editar-nome" placeholder="Nome do produto">
+      <label>Quantidade Atual</label>
+      <input type="number" id="editar-quantidade" min="0">
+      <label>Estoque Mínimo</label>
+      <input type="number" id="editar-minimo" min="0">
+      <label>Estoque Máximo</label>
+      <input type="number" id="editar-maximo" min="0">
+      <label>Estoque de Segurança</label>
+      <input type="number" id="editar-seguranca" min="0">
+      <div class="modal-footer">
+        <button class="btn-modal-cancelar" onclick="fecharModalEditar()">Cancelar</button>
+        <button class="btn-modal-salvar" onclick="salvarEdicao()">Salvar ✓</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    let produtos = JSON.parse(localStorage.getItem('foodloop_estoque')) || [];
+
+    function calcularFatorZ(ns) {
+      if (ns >= 99.9) return 3.09;
+      if (ns >= 99) return 2.33;
+      if (ns >= 98) return 2.05;
+      if (ns >= 97) return 1.88;
+      if (ns >= 96) return 1.75;
+      if (ns >= 95) return 1.65;
+      if (ns >= 90) return 1.28;
+      if (ns >= 85) return 1.04;
+      if (ns >= 80) return 0.84;
+      return 0.5;
+    }
+
+    function calcularEstoque() {
+      const vendaMedia = parseFloat(document.getElementById('venda-media').value) || 0;
+      const tempoReposicao = parseFloat(document.getElementById('tempo-reposicao').value) || 0;
+      const nivelServico = parseFloat(document.getElementById('nivel-servico').value) || 95;
+      const desvioPadrao = parseFloat(document.getElementById('desvio-padrao').value) || 0;
+
+      const fatorZ = calcularFatorZ(nivelServico);
+      const estoqueSeguranca = Math.ceil(fatorZ * desvioPadrao * Math.sqrt(tempoReposicao));
+      const estoqueMinimo = Math.ceil(vendaMedia * tempoReposicao + estoqueSeguranca);
+      const loteEconomico = vendaMedia > 0 ? Math.ceil(Math.sqrt(2 * vendaMedia * 365 * 50 / 5)) : 0;
+      const estoqueMaximo = Math.ceil(estoqueMinimo + loteEconomico);
+
+      document.getElementById('estoque-seguranca').textContent = estoqueSeguranca + ' un.';
+      document.getElementById('estoque-minimo').textContent = estoqueMinimo + ' un.';
+      document.getElementById('estoque-maximo').textContent = estoqueMaximo + ' un.';
+
+      window._ultimoCalculo = { estoqueSeguranca, estoqueMinimo, estoqueMaximo };
+      mostrarToast('Cálculo concluído!', 'sucesso', 2000);
+    }
+
+    function usarResultadoNaGerenciar() {
+      if (!window._ultimoCalculo) calcularEstoque();
+      const c = window._ultimoCalculo;
+      document.getElementById('produto-minimo').value = c.estoqueMinimo;
+      document.getElementById('produto-maximo').value = c.estoqueMaximo;
+      document.getElementById('produto-seguranca').value = c.estoqueSeguranca;
+      document.querySelector('[data-aba="gerenciar"]').click();
+      document.getElementById('produto-nome').focus();
+      mostrarToast('Valores copiados para o formulário!', 'info');
+    }
+
+    function adicionarProduto() {
+      const nome = document.getElementById('produto-nome').value.trim();
+      if (!nome) {
+        mostrarToast('Informe o nome do produto!', 'erro');
+        return;
+      }
+
+      const produto = {
+        id: Date.now(),
+        nome,
+        quantidade: parseInt(document.getElementById('produto-quantidade').value) || 0,
+        minimo: parseInt(document.getElementById('produto-minimo').value) || 0,
+        maximo: parseInt(document.getElementById('produto-maximo').value) || 0,
+        seguranca: parseInt(document.getElementById('produto-seguranca').value) || 0
+      };
+
+      produtos.push(produto);
+      salvarProdutos();
+      atualizarTabela();
+      atualizarAlertas();
+      atualizarVincular();
+      atualizarResumo();
+
+      ['produto-nome','produto-quantidade','produto-minimo','produto-maximo','produto-seguranca'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+
+      mostrarToast(`"${nome}" adicionado ao estoque!`, 'sucesso');
+    }
+
+    function removerProduto(id) {
+      const p = produtos.find(x => x.id === id);
+      if (!confirm(`Remover "${p?.nome || 'este produto'}" do estoque?`)) return;
+      produtos = produtos.filter(p => p.id !== id);
+      salvarProdutos();
+      atualizarTabela();
+      atualizarAlertas();
+      atualizarVincular();
+      atualizarResumo();
+      mostrarToast('Produto removido.', 'info', 2000);
+    }
+
+    function abrirModalEditar(id) {
+      const p = produtos.find(x => x.id === id);
+      if (!p) return;
+      document.getElementById('editar-id').value = id;
+      document.getElementById('editar-nome').value = p.nome;
+      document.getElementById('editar-quantidade').value = p.quantidade;
+      document.getElementById('editar-minimo').value = p.minimo;
+      document.getElementById('editar-maximo').value = p.maximo;
+      document.getElementById('editar-seguranca').value = p.seguranca;
+      document.getElementById('modal-editar').classList.add('aberto');
+    }
+
+    function fecharModalEditar() {
+      document.getElementById('modal-editar').classList.remove('aberto');
+    }
+
+    function salvarEdicao() {
+      const id = parseInt(document.getElementById('editar-id').value);
+      const p = produtos.find(x => x.id === id);
+      if (!p) return;
+
+      p.nome = document.getElementById('editar-nome').value.trim() || p.nome;
+      p.quantidade = parseInt(document.getElementById('editar-quantidade').value) || 0;
+      p.minimo = parseInt(document.getElementById('editar-minimo').value) || 0;
+      p.maximo = parseInt(document.getElementById('editar-maximo').value) || 0;
+      p.seguranca = parseInt(document.getElementById('editar-seguranca').value) || 0;
+
+      salvarProdutos();
+      atualizarTabela();
+      atualizarAlertas();
+      atualizarVincular();
+      atualizarResumo();
+      fecharModalEditar();
+      mostrarToast('Produto atualizado!', 'sucesso');
+    }
+
+    function salvarProdutos() {
+      localStorage.setItem('foodloop_estoque', JSON.stringify(produtos));
+    }
+
+    function getStatus(p) {
+      if (p.quantidade <= p.seguranca) return { texto: '🔴 Abaixo do Segurança', cls: 'status-baixo', nivel: 'critico' };
+      if (p.quantidade <= p.minimo) return { texto: '🟡 Mínimo Atingido', cls: 'status-atencao', nivel: 'atencao' };
+      if (p.quantidade >= p.maximo) return { texto: '✅ No Máximo', cls: 'status-ok', nivel: 'ok' };
+      return { texto: '✅ OK', cls: 'status-ok', nivel: 'ok' };
+    }
+
+    function atualizarTabela() {
+      const tbody = document.getElementById('lista-produtos');
+      if (produtos.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--cinza-medio);padding:2.5rem;">Nenhum produto cadastrado</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = produtos.map(p => {
+        const s = getStatus(p);
+        return `
+          <tr>
+            <td><strong>${p.nome}</strong></td>
+            <td>${p.quantidade} un.</td>
+            <td>${p.minimo} un.</td>
+            <td>${p.maximo} un.</td>
+            <td>${p.seguranca} un.</td>
+            <td class="${s.cls}">${s.texto}</td>
+            <td style="white-space:nowrap;">
+              <button class="btn-acao" onclick="abrirModalEditar(${p.id})">✏️ Editar</button>
+              <button class="btn-acao btn-danger" onclick="removerProduto(${p.id})">🗑️</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function atualizarAlertas() {
+      const container = document.getElementById('alertas-container');
+      const criticos = produtos.filter(p => p.quantidade <= p.seguranca);
+      const atencao = produtos.filter(p => p.quantidade > p.seguranca && p.quantidade <= p.minimo);
+
+      if (criticos.length === 0 && atencao.length === 0) {
+        container.innerHTML = '<div class="alerta-estoque alerta-ok">✅ Todos os produtos estão dentro dos níveis ideais!</div>';
+        return;
+      }
+
+      let html = '';
+
+      if (criticos.length > 0) {
+        html += `<div class="alerta-estoque">
+          <strong>🔴 URGENTE — Abaixo do Estoque de Segurança:</strong><br><br>
+          ${criticos.map(p => `• <strong>${p.nome}</strong>: ${p.quantidade} un. (segurança: ${p.seguranca} un.)`).join('<br>')}
+        </div>`;
+      }
+
+      if (atencao.length > 0) {
+        html += `<div class="alerta-estoque alerta-atencao">
+          <strong>🟡 ATENÇÃO — Estoque Mínimo Atingido:</strong><br><br>
+          ${atencao.map(p => `• <strong>${p.nome}</strong>: ${p.quantidade} un. (mínimo: ${p.minimo} un.)`).join('<br>')}
+        </div>`;
+      }
+
+      container.innerHTML = html;
+    }
+
+    function atualizarVincular() {
+      const container = document.getElementById('vincular-container');
+      const disponiveis = produtos.filter(p => p.quantidade > p.minimo);
+
+      if (disponiveis.length === 0) {
+        container.innerHTML = '<p style="color:var(--cinza-medio);text-align:center;padding:1rem;">Nenhum produto acima do estoque mínimo disponível para vincular.</p>';
+        return;
+      }
+
+      container.innerHTML = disponiveis.map(p => `
+        <div class="vincular-estoque">
+          <div>
+            <strong>${p.nome}</strong>
+            <span style="display:block;font-size:0.85rem;color:var(--cinza-medio);">${p.quantidade} un. disponíveis</span>
+          </div>
+          <button class="btn-vincular" onclick="vincularAlimento(${p.id})">
+            📢 Publicar como doação
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function vincularAlimento(id) {
+      const p = produtos.find(x => x.id === id);
+      if (!p) return;
+
+      const alimentos = JSON.parse(localStorage.getItem('foodloop_alimentos')) || [];
+      const jaPublicado = alimentos.some(a => a.estoqueId === id);
+
+      if (jaPublicado) {
+        mostrarToast(`"${p.nome}" já está publicado na plataforma!`, 'info');
+        return;
+      }
+
+      const usuario = localStorage.getItem('foodloop_user') || 'Estabelecimento';
+      const validade = new Date();
+      validade.setDate(validade.getDate() + 7);
+      const validadeStr = validade.toISOString().split('T')[0];
+
+      const novoAlimento = {
+        id: Date.now(),
+        estoqueId: id,
+        nome: p.nome,
+        doador: usuario,
+        local: localStorage.getItem('foodloop_user_local') || 'Ibirapitanga-BA',
+        validade: validadeStr,
+        quantidade: p.quantidade,
+        criadoEm: new Date().toISOString()
+      };
+
+      alimentos.unshift(novoAlimento);
+      localStorage.setItem('foodloop_alimentos', JSON.stringify(alimentos));
+      mostrarToast(`"${p.nome}" publicado como doação! Validade padrão: 7 dias.`, 'sucesso', 4000);
+    }
+
+    function atualizarResumo() {
+      document.getElementById('res-total').textContent = produtos.length;
+      document.getElementById('res-critico').textContent = produtos.filter(p => p.quantidade <= p.seguranca).length;
+      document.getElementById('res-atencao').textContent = produtos.filter(p => p.quantidade > p.seguranca && p.quantidade <= p.minimo).length;
+      document.getElementById('res-ok').textContent = produtos.filter(p => p.quantidade > p.minimo).length;
+    }
+
+    function initAbas() {
+      document.querySelectorAll('.aba-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.aba-btn').forEach(b => b.classList.remove('ativo'));
+          document.querySelectorAll('.aba-conteudo').forEach(c => c.classList.remove('ativo'));
+          btn.classList.add('ativo');
+          document.getElementById(btn.dataset.aba).classList.add('ativo');
+
+          if (btn.dataset.aba === 'gerenciar') atualizarTabela();
+          else if (btn.dataset.aba === 'alertas') { atualizarAlertas(); atualizarVincular(); }
+        });
+      });
+    }
+
+    document.getElementById('modal-editar').addEventListener('click', function (e) {
+      if (e.target === this) fecharModalEditar();
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initAbas();
+      calcularEstoque();
+      atualizarTabela();
+      atualizarAlertas();
+      atualizarVincular();
+      atualizarResumo();
+
+      const criticos = produtos.filter(p => p.quantidade <= p.seguranca).length;
+      if (criticos > 0) {
+        setTimeout(() => mostrarToast(`⚠️ ${criticos} produto(s) com estoque crítico!`, 'erro', 5000), 800);
+      }
+    });
+  </script>
+</body>
+</html>
