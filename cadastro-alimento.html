@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FoodLoop - Cadastrar Alimento</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    main {
+      background: var(--creme);
+      min-height: calc(100vh - 72px);
+      padding: 3rem 1rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .form-card {
+      background: var(--branco);
+      border-radius: var(--radius);
+      padding: 2.5rem;
+      max-width: 660px;
+      width: 100%;
+      box-shadow: var(--sombra);
+      border: 1.5px solid var(--borda);
+      height: fit-content;
+      animation: heroFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .form-card h2 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.8rem;
+      margin-bottom: 0.4rem;
+      color: var(--cinza-escuro);
+      text-align: center;
+      letter-spacing: -0.5px;
+    }
+
+    .form-card > p {
+      text-align: center;
+      color: var(--cinza-medio);
+      margin-bottom: 2rem;
+      font-size: 0.92rem;
+    }
+
+    #aviso-estoque {
+      display: none;
+      background: var(--verde-claro);
+      border: 1.5px solid rgba(42,157,92,0.25);
+      border-radius: var(--radius-sm);
+      padding: 1rem 1.2rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+      color: var(--cinza-medio);
+      display: none;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-importar {
+      background: var(--verde);
+      color: white;
+      border: none;
+      padding: 0.4rem 1rem;
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      font-size: 0.83rem;
+      font-weight: 700;
+      font-family: 'DM Sans', sans-serif;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+
+    .btn-importar:hover {
+      background: var(--verde-escuro);
+      transform: translateY(-1px);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">Food<span>Loop</span></div>
+    <nav>
+      <a href="index.html">← Início</a>
+      <a href="estoque.html">📊 Meu Estoque</a>
+      <span id="user-area"></span>
+    </nav>
+  </header>
+
+  <main>
+    <div class="form-card">
+      <h2>Cadastrar Alimento para Doação</h2>
+      <p>Preencha os dados do alimento. Ele ficará visível para receptores na plataforma.</p>
+
+      <div id="aviso-estoque">
+        <span>💡 <strong>Dica:</strong> Você tem produtos no seu estoque!</span>
+        <button class="btn-importar" onclick="abrirModalEstoque()">📦 Importar do Estoque</button>
+      </div>
+
+      <form id="form-alimento">
+        <label for="nome-alimento">Nome do Alimento</label>
+        <input type="text" id="nome-alimento" name="nome-alimento" placeholder="Ex: Pão francês, Banana, Arroz..." required>
+
+        <label for="categoria">Categoria</label>
+        <select id="categoria" name="categoria">
+          <option value="">Selecione uma categoria...</option>
+          <option value="🍞 Padaria">🍞 Padaria / Panificados</option>
+          <option value="🥦 Hortifruti">🥦 Hortifruti / Vegetais</option>
+          <option value="🍎 Frutas">🍎 Frutas</option>
+          <option value="🥛 Laticínios">🥛 Laticínios</option>
+          <option value="🥩 Proteínas">🥩 Carnes / Proteínas</option>
+          <option value="🍚 Grãos">🍚 Grãos / Cereais</option>
+          <option value="🧃 Bebidas">🧃 Bebidas</option>
+          <option value="🥡 Outros">🥡 Outros</option>
+        </select>
+
+        <div class="form-row">
+          <div>
+            <label for="doador-alimento">Seu nome / estabelecimento</label>
+            <input type="text" id="doador-alimento" name="doador-alimento" placeholder="Ex: Padaria Central" required>
+          </div>
+          <div>
+            <label for="quantidade-alimento">Quantidade disponível</label>
+            <input type="number" id="quantidade-alimento" name="quantidade-alimento" placeholder="Ex: 20" min="1">
+          </div>
+        </div>
+
+        <label for="local-alimento">Local (cidade / bairro)</label>
+        <input type="text" id="local-alimento" name="local-alimento" placeholder="Ex: Centro, Ibirapitanga-BA" required>
+
+        <label for="validade-alimento">Data de validade</label>
+        <input type="date" id="validade-alimento" name="validade-alimento" required>
+
+        <label for="obs-alimento">Observações (opcional)</label>
+        <textarea id="obs-alimento" name="obs-alimento" rows="2" placeholder="Ex: Embalagem aberta, produto fresco de hoje..." style="resize:vertical;"></textarea>
+
+        <button type="submit">📢 Publicar Alimento</button>
+      </form>
+
+      <div id="mensagem-alimento"></div>
+      <a href="index.html" class="link-voltar">← Cancelar e voltar</a>
+    </div>
+  </main>
+
+  <!-- Modal importar do estoque -->
+  <div id="modal-estoque" class="modal-overlay">
+    <div class="modal">
+      <button class="modal-fechar" onclick="fecharModalEstoque()">✕</button>
+      <h3>📦 Importar do Estoque</h3>
+      <p style="color:var(--cinza-medio);font-size:0.9rem;margin-bottom:1.5rem;">Selecione um produto para preencher o formulário automaticamente.</p>
+      <div id="lista-estoque-modal"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    // Verificar se o usuário é estabelecimento (doador), senão redirecionar
+    const tipoUsuario = localStorage.getItem('foodloop_user_tipo');
+    if (tipoUsuario !== 'doador') {
+      mostrarToast('Acesso negado. Apenas estabelecimentos podem cadastrar alimentos.', 'erro');
+      setTimeout(() => { window.location.href = 'index.html'; }, 2000);
+    }
+
+    document.getElementById('validade-alimento').min = new Date().toISOString().split('T')[0];
+
+    const usuario = localStorage.getItem('foodloop_user');
+    const userLocal = localStorage.getItem('foodloop_user_local');
+    if (usuario) document.getElementById('doador-alimento').value = usuario;
+    if (userLocal) document.getElementById('local-alimento').value = userLocal;
+
+    const estoque = JSON.parse(localStorage.getItem('foodloop_estoque')) || [];
+    if (estoque.length > 0) {
+      document.getElementById('aviso-estoque').style.display = 'flex';
+    }
+
+    function abrirModalEstoque() {
+      const estoqueAtual = JSON.parse(localStorage.getItem('foodloop_estoque')) || [];
+      const lista = document.getElementById('lista-estoque-modal');
+
+      if (estoqueAtual.length === 0) {
+        lista.innerHTML = '<p style="color:var(--cinza-medio);text-align:center;padding:1rem;">Nenhum produto no estoque.</p>';
+      } else {
+        lista.innerHTML = estoqueAtual.map(p => `
+          <div onclick="importarProduto(${p.id})" style="cursor:pointer;padding:0.9rem 1rem;border:2px solid var(--borda);border-radius:var(--radius-sm);margin-bottom:0.6rem;transition:all 0.2s;display:flex;justify-content:space-between;align-items:center;" onmouseover="this.style.borderColor='var(--laranja)';this.style.background='var(--laranja-claro)'" onmouseout="this.style.borderColor='var(--borda)';this.style.background='white'">
+            <div>
+              <strong>${p.nome}</strong>
+              <span style="display:block;font-size:0.82rem;color:var(--cinza-medio);">${p.quantidade} unidades disponíveis</span>
+            </div>
+            <span style="font-size:1.4rem;">${window.emojiAlimento ? window.emojiAlimento(p.nome) : '🥡'}</span>
+          </div>
+        `).join('');
+      }
+
+      document.getElementById('modal-estoque').classList.add('aberto');
+    }
+
+    function fecharModalEstoque() {
+      document.getElementById('modal-estoque').classList.remove('aberto');
+    }
+
+    function importarProduto(id) {
+      const estoqueAtual = JSON.parse(localStorage.getItem('foodloop_estoque')) || [];
+      const produto = estoqueAtual.find(p => p.id === id);
+      if (produto) {
+        document.getElementById('nome-alimento').value = produto.nome;
+        if (produto.quantidade) document.getElementById('quantidade-alimento').value = produto.quantidade;
+        fecharModalEstoque();
+        mostrarToast(`"${produto.nome}" importado do estoque!`, 'sucesso');
+      }
+    }
+
+    document.getElementById('modal-estoque').addEventListener('click', function (e) {
+      if (e.target === this) fecharModalEstoque();
+    });
+
+    document.getElementById('form-alimento').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const nome = document.getElementById('nome-alimento').value.trim();
+      const doador = document.getElementById('doador-alimento').value.trim();
+      const local = document.getElementById('local-alimento').value.trim();
+      const validade = document.getElementById('validade-alimento').value;
+      const categoria = document.getElementById('categoria').value;
+      const quantidade = document.getElementById('quantidade-alimento').value;
+      const obs = document.getElementById('obs-alimento').value.trim();
+
+      const novoAlimento = {
+        id: Date.now(),
+        nome, doador, local, validade, categoria,
+        quantidade: quantidade ? parseInt(quantidade) : null,
+        obs,
+        criadoEm: new Date().toISOString()
+      };
+
+      const alimentos = JSON.parse(localStorage.getItem('foodloop_alimentos')) || [];
+      alimentos.unshift(novoAlimento);
+      localStorage.setItem('foodloop_alimentos', JSON.stringify(alimentos));
+
+      const msg = document.getElementById('mensagem-alimento');
+      msg.textContent = '✅ Alimento publicado com sucesso! Redirecionando...';
+      msg.style.color = 'var(--verde)';
+
+      setTimeout(() => { window.location.href = 'index.html'; }, 1400);
+    });
+  </script>
+</body>
+</html>
