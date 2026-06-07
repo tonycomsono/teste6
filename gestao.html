@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FoodLoop - Gestão para Estabelecimentos</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .gestao-hero {
+      background: linear-gradient(135deg, #1C1917 0%, #2D1F12 100%);
+      color: white;
+      padding: 2.5rem 5%;
+    }
+    .gestao-hero h1 {
+      font-family: 'Fraunces', serif;
+      font-size: 2rem;
+      margin-bottom: 0.4rem;
+    }
+    .gestao-hero p {
+      color: rgba(255,255,255,0.7);
+    }
+    .gestao-container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 5%;
+    }
+    .card-gestao {
+      background: white;
+      border-radius: var(--radius);
+      padding: 1.8rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--sombra);
+      border: 1px solid var(--borda);
+    }
+    .card-gestao h2 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.6rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .tabela-wrapper {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 0.9rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--borda);
+    }
+    th {
+      background: var(--cinza-claro);
+      font-weight: 700;
+      color: var(--cinza-escuro);
+      font-size: 0.85rem;
+    }
+    .badge-tipo {
+      display: inline-block;
+      padding: 0.2rem 0.7rem;
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .badge-doador { background: #fee2e2; color: #b91c1c; }
+    .badge-receptor { background: #dcfce7; color: #166534; }
+    .btn-editar-alimento {
+      background: var(--verde);
+      color: white;
+      border: none;
+      padding: 0.4rem 0.9rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      margin-right: 0.5rem;
+    }
+    .btn-excluir-alimento {
+      background: #dc2626;
+      color: white;
+      border: none;
+      padding: 0.4rem 0.9rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.75rem;
+    }
+    .stats-gestao {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+    .stat-gestao-card {
+      background: var(--creme);
+      padding: 1rem 1.5rem;
+      border-radius: var(--radius-sm);
+      flex: 1;
+      text-align: center;
+    }
+    .stat-gestao-card strong {
+      font-size: 1.8rem;
+      display: block;
+      font-family: 'Fraunces', serif;
+      color: var(--laranja);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">Food<span>Loop</span></div>
+    <nav>
+      <a href="index.html">← Início</a>
+      <a href="estoque.html">📊 Estoque</a>
+      <a href="cadastro-alimento.html">➕ Adicionar</a>
+      <span id="user-area"></span>
+    </nav>
+  </header>
+
+  <div class="gestao-hero">
+    <h1>📋 Gestão da Plataforma</h1>
+    <p>Visão completa de usuários e alimentos cadastrados no sistema.</p>
+  </div>
+
+  <div class="gestao-container">
+    <div class="stats-gestao" id="stats-gestao"></div>
+
+    <div class="card-gestao">
+      <h2>👥 Usuários Cadastrados</h2>
+      <div class="tabela-wrapper">
+        <table id="tabela-usuarios">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>E-mail</th>
+              <th>Telefone</th>
+              <th>Cidade</th>
+              <th>Tipo</th>
+            </tr>
+          </thead>
+          <tbody id="lista-usuarios"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card-gestao">
+      <h2>🥗 Alimentos Publicados</h2>
+      <div class="tabela-wrapper">
+        <table id="tabela-alimentos">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Estabelecimento</th>
+              <th>Local</th>
+              <th>Validade</th>
+              <th>Quantidade</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="lista-alimentos-gestao"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    // Verificar permissão
+    const tipo = localStorage.getItem('foodloop_user_tipo');
+    if (tipo !== 'doador') {
+      mostrarToast('Acesso negado. Apenas estabelecimentos podem acessar a gestão.', 'erro');
+      setTimeout(() => { window.location.href = 'index.html'; }, 2000);
+    }
+
+    function carregarUsuarios() {
+      const usuarios = JSON.parse(localStorage.getItem('foodloop_usuarios')) || [];
+      const tbody = document.getElementById('lista-usuarios');
+      if (usuarios.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Nenhum usuário cadastrado ainda.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = usuarios.map(u => `
+        <tr>
+          <td>${u.nome}</td>
+          <td>${u.email}</td>
+          <td>${u.telefone || '—'}</td>
+          <td>${u.endereco || '—'}</td>
+          <td><span class="badge-tipo ${u.tipo === 'doador' ? 'badge-doador' : 'badge-receptor'}">${u.tipo === 'doador' ? 'Estabelecimento' : 'Receptor'}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    function carregarAlimentosGestao() {
+      const alimentos = JSON.parse(localStorage.getItem('foodloop_alimentos')) || [];
+      const tbody = document.getElementById('lista-alimentos-gestao');
+      if (alimentos.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Nenhum alimento cadastrado.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = alimentos.map(a => `
+        <tr>
+          <td>${a.nome}</td>
+          <td>${a.doador || '—'}</td>
+          <td>${a.local || '—'}</td>
+          <td>${a.validade ? new Date(a.validade).toLocaleDateString('pt-BR') : '—'}</td>
+          <td>${a.quantidade || '—'}</td>
+          <td>
+            <button class="btn-editar-alimento" onclick="editarAlimento(${a.id})">✏️ Editar</button>
+            <button class="btn-excluir-alimento" onclick="excluirAlimento(${a.id})">🗑️ Excluir</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function atualizarEstatisticas() {
+      const usuarios = JSON.parse(localStorage.getItem('foodloop_usuarios')) || [];
+      const alimentos = JSON.parse(localStorage.getItem('foodloop_alimentos')) || [];
+      const estabelecimentos = usuarios.filter(u => u.tipo === 'doador').length;
+      const receptores = usuarios.filter(u => u.tipo === 'receptor').length;
+      const statsDiv = document.getElementById('stats-gestao');
+      statsDiv.innerHTML = `
+        <div class="stat-gestao-card"><strong>${usuarios.length}</strong> Usuários</div>
+        <div class="stat-gestao-card"><strong>${alimentos.length}</strong> Alimentos</div>
+        <div class="stat-gestao-card"><strong>${estabelecimentos}</strong> Estabelecimentos</div>
+        <div class="stat-gestao-card"><strong>${receptores}</strong> Receptores</div>
+      `;
+    }
+
+    function editarAlimento(id) {
+      const alimentos = JSON.parse(localStorage.getItem('foodloop_alimentos')) || [];
+      const alimento = alimentos.find(a => a.id === id);
+      if (!alimento) return;
+      const novoNome = prompt('Editar nome do alimento:', alimento.nome);
+      if (novoNome && novoNome.trim()) alimento.nome = novoNome.trim();
+      const novaQuantidade = prompt('Editar quantidade:', alimento.quantidade);
+      if (novaQuantidade !== null) alimento.quantidade = parseInt(novaQuantidade) || null;
+      localStorage.setItem('foodloop_alimentos', JSON.stringify(alimentos));
+      carregarAlimentosGestao();
+      atualizarEstatisticas();
+      mostrarToast('Alimento atualizado!', 'sucesso');
+    }
+
+    function excluirAlimento(id) {
+      if (!confirm('Tem certeza que deseja excluir este alimento permanentemente?')) return;
+      let alimentos = JSON.parse(localStorage.getItem('foodloop_alimentos')) || [];
+      alimentos = alimentos.filter(a => a.id !== id);
+      localStorage.setItem('foodloop_alimentos', JSON.stringify(alimentos));
+      carregarAlimentosGestao();
+      atualizarEstatisticas();
+      mostrarToast('Alimento removido.', 'info');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      carregarUsuarios();
+      carregarAlimentosGestao();
+      atualizarEstatisticas();
+    });
+  </script>
+</body>
+</html>
