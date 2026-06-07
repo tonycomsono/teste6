@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FoodLoop — Conectando Alimentos, Evitando Desperdício</title>
+  <meta name="description" content="Plataforma gratuita que conecta estabelecimentos e receptores de alimentos em Ibirapitanga-BA. Reduza o desperdício, ajude quem precisa.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <div class="logo">Food<span>Loop</span></div>
+    <nav>
+      <a href="#como-funciona">Como funciona</a>
+      <a href="#alimentos">Alimentos</a>
+      <a href="estoque.html">📊 Estoque</a>
+      <span id="user-area"></span>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-particles"></div>
+      <div class="hero-content">
+        <span class="hero-badge">🌱 Ibirapitanga–BA · Economia Circular</span>
+        <h1>Conectamos <em>estabelecimentos</em> e receptores para acabar com o desperdício de alimentos</h1>
+        <p>Mercados, padarias e produtores compartilham alimentos próximos ao vencimento com quem precisa. Rápido, seguro e 100% gratuito.</p>
+        <div class="hero-btns">
+          <a href="cadastro.html" class="btn-cta">Quero participar 🙌</a>
+          <a href="#como-funciona" class="btn-cta-outline">Como funciona</a>
+        </div>
+      </div>
+      <div class="hero-scroll-hint">
+        <span>▼</span>
+        <span>Saiba mais</span>
+      </div>
+    </section>
+
+    <!-- STATS -->
+    <div class="stats-strip">
+      <div class="stat-item">
+        <strong id="stat-alimentos">0</strong>
+        <span>Alimentos disponíveis</span>
+      </div>
+      <div class="stat-item">
+        <strong>1,3 bi</strong>
+        <span>Toneladas desperdiçadas/ano</span>
+      </div>
+      <div class="stat-item">
+        <strong>100%</strong>
+        <span>Gratuito e seguro</span>
+      </div>
+      <div class="stat-item">
+        <strong>Lei 14.016</strong>
+        <span>Proteção para doadores</span>
+      </div>
+    </div>
+
+    <!-- COMO FUNCIONA -->
+    <section id="como-funciona">
+      <h2>Como funciona</h2>
+      <p class="secao-subtitulo">Em apenas alguns passos você já faz parte da solução</p>
+
+      <div class="passos-grid">
+        <div class="passo-card">
+          <div class="passo-numero">1</div>
+          <span class="passo-icon">📝</span>
+          <h3>Cadastre-se</h3>
+          <p>Crie sua conta como <strong>estabelecimento</strong> (mercado, padaria, restaurante) ou <strong>receptor</strong> e comece agora.</p>
+        </div>
+        <div class="passo-card">
+          <div class="passo-numero">2</div>
+          <span class="passo-icon">🥦</span>
+          <h3>Cadastre ou encontre</h3>
+          <p>Estabelecimentos publicam produtos. Receptores buscam alimentos disponíveis com nossa <strong>busca inteligente com IA</strong>.</p>
+        </div>
+        <div class="passo-card">
+          <div class="passo-numero">3</div>
+          <span class="passo-icon">🤝</span>
+          <h3>Conecte-se e retire</h3>
+          <p>Veja o local do estabelecimento e combine a retirada. Alimentos seguros, amparados pela <strong>Lei nº 14.016/2020</strong>.</p>
+        </div>
+        <div class="passo-card">
+          <div class="passo-numero">4</div>
+          <span class="passo-icon">📊</span>
+          <h3>Controle seu Estoque</h3>
+          <p>Estabelecimentos acessam o <strong>Estoque Inteligente</strong>: calcule mínimo, máximo e segurança, e receba alertas antes de desperdiçar.</p>
+        </div>
+      </div>
+
+      <div class="tipo-uso">
+        <div class="tipo-card doador">
+          <h3>🏪 Para Estabelecimentos</h3>
+          <ul>
+            <li>Cadastre produtos próximos ao vencimento</li>
+            <li>Controle seu estoque com calculadora inteligente</li>
+            <li>Receba alertas de estoque crítico</li>
+            <li>Vincule produtos do estoque à plataforma</li>
+            <li>Protegido pela Lei nº 14.016/2020</li>
+            <li>Reduza perdas financeiras</li>
+          </ul>
+        </div>
+        <div class="tipo-card receptor">
+          <h3>🙋 Para Receptores</h3>
+          <ul>
+            <li>Busque alimentos disponíveis com IA</li>
+            <li>Veja validade e local do estabelecimento</li>
+            <li>Acesso 100% gratuito</li>
+            <li>Alimentos dentro das normas sanitárias</li>
+            <li>Ajuda a reduzir o desperdício</li>
+            <li>Cadastro simples e rápido</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- LEI BANNER -->
+    <div class="lei-banner">
+      <span class="lei-icon">⚖️</span>
+      <div>
+        <h3>Doação protegida por lei</h3>
+        <p>A Lei nº 14.016/2020 isenta estabelecimentos de responsabilidade civil por alimentos próprios para consumo humano doados de boa-fé. Doe sem medo!</p>
+      </div>
+    </div>
+
+    <!-- BUSCA COM IA -->
+    <section class="busca-ia">
+      <h2>Encontre alimentos perto de você</h2>
+      <p>Nossa IA busca e sugere alimentos disponíveis no sistema</p>
+      <div class="search-box">
+        <input type="text" id="busca" placeholder="Ex: pão, frutas, leite, arroz..." />
+        <button id="btn-busca">Buscar com IA 🧠</button>
+      </div>
+      <div id="resultados-busca"></div>
+    </section>
+
+    <!-- ALIMENTOS DISPONÍVEIS -->
+    <section id="alimentos">
+      <div class="secao-header">
+        <h2>Alimentos disponíveis</h2>
+        <a href="cadastro-alimento.html" id="btn-cadastrar-alimento" class="btn-adicionar-alimento" style="display: none;">➕ Cadastrar Alimento</a>
+      </div>
+      <div id="lista-alimentos" class="grid-alimentos">
+        <!-- Preenchido via JavaScript -->
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>FoodLoop — Reduzindo o desperdício de alimentos em Ibirapitanga–BA &copy; 2025</p>
+    <p style="margin-top:0.5rem;font-size:0.82rem;">Amparado pela <a href="#">Lei nº 14.016/2020</a> · Feito com 💚 para a comunidade</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
